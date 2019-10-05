@@ -40,11 +40,12 @@ LOWER_SKY_COLOR = (188/255, 220/255, 243/255)
 SNOW_COLOR = (1.0, 1.0, 1.0)
 TREE_COLOR = (97/255, 130/255, 101/255)
 ROCK_COLOR = (0.51, 0.5, 0.57)
+SUNLIGHT_COLOR = (1.0, 1.0, 1.0)
+AMBIENT_LIGHT_COLOR = (106/255, 133/255, 169/255) # the color of shadows
 
 # other parameters
 DEFAULT_FOG_FACTOR = 0.9
 LIGHT_DIRECTION = normalize(3, 6, 1)
-MIN_BRIGHTNESS = 0.3
 
 
 class Camera:
@@ -80,7 +81,7 @@ class Camera:
         color_str = "#%02x%02x%02x" % tuple([round(255.0*x) for x in color])
         turtle.getcanvas().create_polygon(p1+p2+p3, fill=color_str)
     
-    def compute_shaded_color(self, p1: Point3D, p2: Point3D, p3: Point3D, color: Color) -> Color:
+    def compute_shaded_color(self, p1: Point3D, p2: Point3D, p3: Point3D, material_color: Color) -> Color:
         """Shade the color of a triangle according to a directional light."""
         # compute the normal vector
         ax, ay, az = p1[0]-p2[0], p1[1]-p2[1], p1[2]-p2[2]
@@ -93,13 +94,13 @@ class Camera:
         ny /= mag
         nz /= mag
         
-        # compute the brightness multiplier
+        # compute the color of the light on the surface
         lx, ly, lz = LIGHT_DIRECTION
-        brightness = max(nx*lx + ny*ly + nz*lz, 0.0)
-        brightness = MIN_BRIGHTNESS + brightness*(1-MIN_BRIGHTNESS)
+        sunlight_amount = max(nx*lx + ny*ly + nz*lz, 0.0)
+        light_color = mix_colors(AMBIENT_LIGHT_COLOR, SUNLIGHT_COLOR, sunlight_amount)
         
-        # return the darkened color
-        return [v*brightness for v in color]
+        # return the material color multiplied by the light color
+        return [vm*vl for vm, vl in zip(material_color, light_color)]
     
     def compute_fog_faded_color(self, color: Color, dz: float) -> Color:
         """Fade a color depending on how far from the camera it is."""
