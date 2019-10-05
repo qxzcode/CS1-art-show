@@ -256,7 +256,7 @@ def main():
     
     # fill the background with the sky gradient
     print("Filling the sky...")
-    fill_sky_gradient(50, 0.58)
+    fill_sky_gradient(256, 0.58)
     
     # set up the Camera
     camera = Camera((0, 6.0, -2.4), math.pi*0.34, 0, 0, zoom=3.4, fog_factor=0)
