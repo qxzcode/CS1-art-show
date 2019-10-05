@@ -34,6 +34,11 @@ def mix_colors(color1: Color, color2: Color, mix_amount: float) -> Color:
     return [(1-mix_amount)*v1 + mix_amount*v2 for v1, v2 in zip(color1, color2)]
 
 
+def multiply_vectors(vec1: Iterable[float], vec2: Iterable[float]) -> Iterable[float]:
+    """Multiply two vectors element-wise."""
+    return [v1*v2 for v1, v2 in zip(vec1, vec2)]
+
+
 # colors
 UPPER_SKY_COLOR = (140/255, 188/255, 237/255) # also used for fog fading
 LOWER_SKY_COLOR = (188/255, 220/255, 243/255)
@@ -44,15 +49,42 @@ SUNLIGHT_COLOR = (1.0, 1.0, 1.0)
 AMBIENT_LIGHT_COLOR = (106/255, 133/255, 169/255) # the color of shadows
 
 # other parameters
-DEFAULT_FOG_FACTOR = 0.9
-LIGHT_DIRECTION = normalize(3, 6, 1)
+FOG_FACTOR = 0.9
+#SUNLIGHT_DIRECTION = (3, 6, 1)
+SUNLIGHT_DIRECTION = (-5, 1, 6)
+AMBIENT_LIGHT_DIRECTION = (0, 1, 0)
+
+
+class DirectionalLight:
+    """A colored light that hits all surfaces from a constant direction."""
+    
+    def __init__(self, direction: Point3D, color: Color, dot_clip: float = 0.0):
+        """Create a directional light given its direction and color."""
+        self._direction = normalize(*direction)
+        self._color = color
+        self._dot_clip = dot_clip
+    
+    def get_max_brightness(self) -> float:
+        """Return the maximum color value that this light can produce."""
+        return max(self._color)
+    
+    def compute_shaded_color(self, normal: Point3D, material_color: Color) -> Color:
+        """
+        Return the color contributed by this light on a surface given
+        its (unit) normal vector and material color.
+        """
+        dot_product = sum(multiply_vectors(self._direction, normal))
+        light_amount = max(dot_product, self._dot_clip)
+        light_amount = (light_amount - self._dot_clip) / (1.0 - self._dot_clip)
+        return [vm*vl*light_amount for vm, vl in zip(material_color, self._color)]
 
 
 class Camera:
     """A camera for drawing points in 3D space onto the 2D screen."""
     
     def __init__(self, pos: Point3D, theta_x: float, theta_y: float, theta_z: float,
-                 zoom: float, fog_factor: float = DEFAULT_FOG_FACTOR):
+                 zoom: float, fog_factor: float,
+                 lights: Iterable[DirectionalLight]):
         """Create a camera given its position in 3D space and the Tait-Bryan angles of its orientation."""
         self._pos = pos
         self._cx = math.cos(theta_x)
@@ -63,6 +95,7 @@ class Camera:
         self._sz = math.sin(theta_z)
         self._scale = turtle.window_height() * zoom
         self._fog_factor = fog_factor
+        self._lights = lights
     
     def project_point(self, point: Point3D) -> Point3D:
         """Project a point in 3D world space into 2D screen space."""
@@ -89,18 +122,21 @@ class Camera:
         nx = ay*bz - az*by
         ny = az*bx - ax*bz
         nz = ax*by - ay*bx
-        mag = math.sqrt(nx*nx + ny*ny + nz*nz)
-        nx /= mag
-        ny /= mag
-        nz /= mag
+        normal = normalize(nx, ny, nz)
         
-        # compute the color of the light on the surface
-        lx, ly, lz = LIGHT_DIRECTION
-        sunlight_amount = max(nx*lx + ny*ly + nz*lz, 0.0)
-        light_color = mix_colors(AMBIENT_LIGHT_COLOR, SUNLIGHT_COLOR, sunlight_amount)
+        # compute the color of the lights on the surface
+        cr, cg, cb = 0, 0, 0
+        for light in self._lights:
+            lr, lg, lb = light.compute_shaded_color(normal, material_color)
+            cr += lr
+            cg += lg
+            cb += lb
         
-        # return the material color multiplied by the light color
-        return [vm*vl for vm, vl in zip(material_color, light_color)]
+        # clip the color values at 1.0 and return
+        max_v = max(cr, cg, cb)
+        if max_v > 1.0:
+            return cr/max_v, cg/max_v, cb/max_v
+        return cr, cg, cb
     
     def compute_fog_faded_color(self, color: Color, dz: float) -> Color:
         """Fade a color depending on how far from the camera it is."""
@@ -258,9 +294,13 @@ def main():
     print("Filling the sky...")
     fill_sky_gradient(256, 0.58)
     
-    # set up the Camera
-    camera = Camera((0, 6.0, -2.4), math.pi*0.34, 0, 0, zoom=3.4, fog_factor=0)
-    camera = Camera((0, 0.07, -0.001), 0, 0, 0, zoom=1.2)
+    # set up the lights and Camera
+    lights = [
+        DirectionalLight(SUNLIGHT_DIRECTION, SUNLIGHT_COLOR),
+        DirectionalLight(AMBIENT_LIGHT_DIRECTION, AMBIENT_LIGHT_COLOR, dot_clip=-1.0),
+    ]
+    camera = Camera((0, 6.0, -2.4), math.pi*0.34, 0, 0, zoom=3.4, fog_factor=0, lights=lights)
+    camera = Camera((0, 0.07, -0.001), 0, 0, 0, zoom=1.2, fog_factor=FOG_FACTOR, lights=lights)
     
     # initialize the PRNG
     rand_seed = random.getrandbits(32)
