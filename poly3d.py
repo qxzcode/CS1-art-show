@@ -30,7 +30,7 @@ def progress_iterator(collection: Collection, message: str) -> Iterable:
 
 
 def mix_colors(color1: Color, color2: Color, mix_amount: float) -> Color:
-    """Linearly mix two colors. A mix_amount of 0.0 is color1, and 1.0 is color2."""
+    """Linearly mix two colors. A mix_amount of 0.0 gives color1, and 1.0 gives color2."""
     return [(1-mix_amount)*v1 + mix_amount*v2 for v1, v2 in zip(color1, color2)]
 
 
