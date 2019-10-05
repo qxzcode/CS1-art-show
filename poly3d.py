@@ -2,6 +2,8 @@
 TODO: module/program docstring
 
 Developed and tested with Python 3.7.
+
+Author: Quinn Tucker
 """
 
 import turtle, math, random
@@ -166,7 +168,7 @@ class Camera:
 
 
 class Terrain:
-    """Handles generating and drawing fractal terrain."""
+    """Handles generating and drawing fractal heightmaps/terrain."""
     
     def __init__(self, recursion_depth: int, noise_depth: int, scale: float,
                  snow_height: float = None, tree_height: float = None,
@@ -278,9 +280,8 @@ def fill_sky_gradient(num_steps: int, start_y: float):
 
 def main():
     """The entry point of the program."""
-    print("Setting up...")
-    
     # set up turtle parameters
+    print("Setting up...")
     turtle.setup(9999, 9999)
     win_scale = min(turtle.window_width()//22, turtle.window_height()//17)
     turtle.setup(win_scale*22, win_scale*17) # the largest 11x8.5 window possible
@@ -294,17 +295,13 @@ def main():
     print("Filling the sky...")
     fill_sky_gradient(256, 0.58)
     
-    # set up the lights and Camera
+    # set up the lights and camera
     lights = [
         DirectionalLight(SUNLIGHT_DIRECTION, SUNLIGHT_COLOR),
         DirectionalLight(AMBIENT_LIGHT_DIRECTION, AMBIENT_LIGHT_COLOR, dot_clip=-1.0),
     ]
     camera = Camera((0, 6.0, -2.4), math.pi*0.34, 0, 0, zoom=3.4, fog_factor=0, lights=lights)
     camera = Camera((0, 0.07, -0.001), 0, 0, 0, zoom=1.2, fog_factor=FOG_FACTOR, lights=lights)
-    
-    # initialize the PRNG
-    rand_seed = random.getrandbits(32)
-    print("Seed:", rand_seed)
     
     # generate and draw the terrain
     print("Generating terrain...")
