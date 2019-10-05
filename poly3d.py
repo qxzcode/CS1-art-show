@@ -204,6 +204,41 @@ class Terrain:
         camera.draw_triangles(self._triangles)
 
 
+def fill_rectangle(min_x: float, min_y: float, max_x: float, max_y: float, color: Color):
+    """Fill the axis-aligned rectangle bounded by the given coordinates."""
+    turtle.goto(min_x, min_y)
+    turtle.fillcolor(color)
+    turtle.begin_fill()
+    turtle.goto(max_x, min_y)
+    turtle.goto(max_x, max_y)
+    turtle.goto(min_x, max_y)
+    turtle.end_fill()
+
+
+def fill_sky_gradient(num_steps: int, start_y: float):
+    """
+    Fill the background sky gradient.
+    
+    Uses num_steps rectangles to approximate a linear gradient
+    that goes from the top of the screen to start_y of the way
+    down the screen (between 0.0 and 1.0).
+    """
+    # compute some helper values
+    min_x = -turtle.window_width() / 2
+    max_x = +turtle.window_width() / 2
+    y_step = turtle.window_height()*start_y / num_steps
+    min_y = turtle.window_height() / 2 - turtle.window_height()*start_y
+    
+    # fill the section below the gradient
+    fill_rectangle(min_x, -turtle.window_height()/2, max_x, min_y, LOWER_SKY_COLOR)
+    
+    # fill the gradient
+    for i in range(num_steps):
+        fill_rectangle(min_x, min_y, max_x, min_y+y_step,
+                       mix_colors(LOWER_SKY_COLOR, UPPER_SKY_COLOR, i/(num_steps-1)))
+        min_y += y_step
+
+
 def main():
     """The entry point of the program."""
     print("Setting up...")
@@ -218,14 +253,9 @@ def main():
     turtle.hideturtle()
     turtle.penup()
     
-    # fill the background
-    turtle.goto(-turtle.window_width(), -turtle.window_height())
-    turtle.fillcolor(UPPER_SKY_COLOR)
-    turtle.begin_fill()
-    turtle.goto(+turtle.window_width(), -turtle.window_height())
-    turtle.goto(+turtle.window_width(), +turtle.window_height())
-    turtle.goto(-turtle.window_width(), +turtle.window_height())
-    turtle.end_fill()
+    # fill the background with the sky gradient
+    print("Filling the sky...")
+    fill_sky_gradient(50, 0.58)
     
     # set up the Camera
     camera = Camera((0, 6.0, -2.4), math.pi*0.34, 0, 0, zoom=3.4, fog_factor=0)
