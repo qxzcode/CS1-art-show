@@ -29,8 +29,14 @@ def progress_iterator(collection: Collection, message: str) -> Iterable:
     print(f"{message} 100%")
 
 
+def mix_colors(color1: Color, color2: Color, mix_amount: float) -> Color:
+    """Linearly mix two colors. A mix_amount of 0.0 is color1, and 1.0 is color2."""
+    return [(1-mix_amount)*v1 + mix_amount*v2 for v1, v2 in zip(color1, color2)]
+
+
 # colors
-BACKGROUND_COLOR = (145/300, 206/300, 235/255)
+UPPER_SKY_COLOR = (140/255, 188/255, 237/255) # also used for fog fading
+LOWER_SKY_COLOR = (188/255, 220/255, 243/255)
 SNOW_COLOR = (1.0, 1.0, 1.0)
 TREE_COLOR = (97/255, 130/255, 101/255)
 ROCK_COLOR = (0.51, 0.5, 0.57)
@@ -98,7 +104,7 @@ class Camera:
     def compute_fog_faded_color(self, color: Color, dz: float) -> Color:
         """Fade a color depending on how far from the camera it is."""
         fade_amount = math.exp(-(dz * self._fog_factor)**2)
-        return [fade_amount*v + (1-fade_amount)*bg for v, bg in zip(color, BACKGROUND_COLOR)]
+        return mix_colors(UPPER_SKY_COLOR, color, fade_amount)
     
     def draw_triangles(self, triangles: Collection):
         """Shade, project, and draw a list of triangles in 3D."""
@@ -214,7 +220,7 @@ def main():
     
     # fill the background
     turtle.goto(-turtle.window_width(), -turtle.window_height())
-    turtle.fillcolor(BACKGROUND_COLOR)
+    turtle.fillcolor(UPPER_SKY_COLOR)
     turtle.begin_fill()
     turtle.goto(+turtle.window_width(), -turtle.window_height())
     turtle.goto(+turtle.window_width(), +turtle.window_height())
