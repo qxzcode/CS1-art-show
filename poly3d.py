@@ -271,7 +271,7 @@ def fill_sky_gradient(num_steps: int, start_y: float):
     
     # fill the gradient
     for i in range(num_steps):
-        fill_rectangle(min_x, min_y, max_x, min_y+y_step,
+        fill_rectangle(min_x, min_y, max_x, min_y + y_step + 1,
                        mix_colors(LOWER_SKY_COLOR, UPPER_SKY_COLOR, i/(num_steps-1)))
         min_y += y_step
 
