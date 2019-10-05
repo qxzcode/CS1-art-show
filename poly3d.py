@@ -32,7 +32,7 @@ def progress_iterator(collection: Collection, message: str) -> Iterable:
 # colors
 BACKGROUND_COLOR = (145/300, 206/300, 235/255)
 SNOW_COLOR = (1.0, 1.0, 1.0)
-TREE_COLOR = (0.16, 0.4, 0.10)
+TREE_COLOR = (97/255, 130/255, 101/255)
 ROCK_COLOR = (0.51, 0.5, 0.57)
 
 # other parameters
