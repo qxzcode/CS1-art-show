@@ -6,7 +6,7 @@ Developed and tested with Python 3.7.
 Author: Quinn Tucker
 """
 
-import turtle, math, random
+import turtle, math, random, argparse
 from typing import Tuple, Collection, Iterable, Hashable
 Point3D = Tuple[float,float,float]
 Color = Tuple[float,float,float]
@@ -286,6 +286,12 @@ def fill_sky_gradient(num_steps: int, start_y: float):
 
 def main():
     """The entry point of the program."""
+    # parse command-line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--no-export", action="store_true",
+                        help="Don't export an .eps file of the drawing")
+    args = parser.parse_args()
+    
     # set up turtle parameters
     print("Setting up...")
     turtle.setup(9999, 9999)
@@ -321,9 +327,10 @@ def main():
     turtle.update()
     
     # export the drawing to a file
-    OUTPUT_FILE = "output.eps"
-    print(f"Exporting {OUTPUT_FILE}...")
-    turtle.getcanvas().postscript(file=OUTPUT_FILE, colormode="color", pagewidth="11i")
+    if not args.no_export:
+        OUTPUT_FILE = "output.eps"
+        print(f"Exporting {OUTPUT_FILE}...")
+        turtle.getcanvas().postscript(file=OUTPUT_FILE, colormode="color", pagewidth="11i")
     
     # wait for the user to close the window
     print("Done!")
