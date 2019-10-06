@@ -61,7 +61,13 @@ class DirectionalLight:
     """A colored light that hits all surfaces from a constant direction."""
     
     def __init__(self, direction: Point3D, color: Color, dot_clip: float = 0.0):
-        """Create a directional light given its direction and color."""
+        """
+        Create a directional light given its direction and color.
+        
+        The dot_clip parameter adjusts the value of the dot product used
+        in the lighting calculation; a lower value compresses the range of
+        brightnesses produced by the light.
+        """
         self._direction = normalize(*direction)
         self._color = color
         self._dot_clip = dot_clip
@@ -298,7 +304,7 @@ def main():
     # set up the lights and camera
     lights = [
         DirectionalLight(SUNLIGHT_DIRECTION, SUNLIGHT_COLOR),
-        DirectionalLight(AMBIENT_LIGHT_DIRECTION, AMBIENT_LIGHT_COLOR, dot_clip=-1.0),
+        DirectionalLight(AMBIENT_LIGHT_DIRECTION, AMBIENT_LIGHT_COLOR, dot_clip=-3.0),
     ]
     camera = Camera((0, 6.0, -2.4), math.pi*0.34, 0, 0, zoom=3.4, fog_factor=0, lights=lights)
     camera = Camera((0, 0.07, -0.001), 0, 0, 0, zoom=1.2, fog_factor=FOG_FACTOR, lights=lights)
