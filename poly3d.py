@@ -351,7 +351,7 @@ def main():
         terrain_seed = random.getrandbits(32)
         print(f"    Terrain seed = {terrain_seed}")
     else:
-        terrain_seed = 2915496869
+        terrain_seed = 129477298
     random.seed(terrain_seed)
     terrain = Terrain(recursion_depth=9, noise_depth=7, scale=0.10,
                       snow_height=0.025, tree_height=-0.015, color_offset_heightmap=color_offset)
