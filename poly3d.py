@@ -1,5 +1,5 @@
 """
-TODO: module/program docstring
+Art show submission - draws a mountain range.
 
 Developed and tested with Python 3.7.
 
@@ -9,6 +9,7 @@ Author: Quinn Tucker
 import turtle, math, random, argparse
 from typing import Tuple, Collection, Iterable, Hashable
 Point3D = Tuple[float,float,float]
+Point2D = Tuple[float,float]
 Color = Tuple[float,float,float]
 
 
@@ -92,7 +93,7 @@ class Camera:
     
     def __init__(self, pos: Point3D, theta_x: float, theta_y: float, theta_z: float,
                  zoom: float, fog_factor: float,
-                 lights: Iterable[DirectionalLight]):
+                 lights: Iterable[DirectionalLight], fast_draw: bool):
         """Create a camera given its position in 3D space and the Tait-Bryan angles of its orientation."""
         self._pos = pos
         self._cx = math.cos(theta_x)
@@ -104,6 +105,7 @@ class Camera:
         self._scale = turtle.window_height() * zoom
         self._fog_factor = fog_factor
         self._lights = lights
+        self._fast_draw = fast_draw
     
     def project_point(self, point: Point3D) -> Point3D:
         """Project a point in 3D world space into 2D screen space."""
@@ -115,12 +117,23 @@ class Camera:
         dx = self._cy*(self._sz*y + self._cz*x) - self._sy*z
         dy = self._sx*(self._sy*(self._sz*y + self._cz*x) + self._cy*z) + self._cx*(self._cz*y - self._sz*x)
         dz = self._cx*(self._sy*(self._sz*y + self._cz*x) + self._cy*z) - self._sx*(self._cz*y - self._sz*x)
-        return self._scale * dx/dz, -self._scale * dy/dz, dz
+        return self._scale * dx/dz, self._scale * dy/dz, dz
     
-    def draw_triangle(self, p1: Point3D, p2: Point3D, p3: Point3D, color: Color):
+    def draw_triangle(self, p1: Point2D, p2: Point2D, p3: Point2D, color: Color):
         """Draw a 2D triangle given its three vertices."""
-        color_str = "#%02x%02x%02x" % tuple([round(255.0*x) for x in color])
-        turtle.getcanvas().create_polygon(p1+p2+p3, fill=color_str)
+        if self._fast_draw:
+            color_str = "#%02x%02x%02x" % tuple([round(255.0*x) for x in color])
+            x1, y1 = p1
+            x2, y2 = p2
+            x3, y3 = p3
+            turtle.getcanvas().create_polygon((x1,-y1,x2,-y2,x3,-y3), fill=color_str)
+        else:
+            turtle.goto(*p1)
+            turtle.fillcolor(color)
+            turtle.begin_fill()
+            turtle.goto(*p2)
+            turtle.goto(*p3)
+            turtle.end_fill()
     
     def compute_shaded_color(self, p1: Point3D, p2: Point3D, p3: Point3D, material_color: Color) -> Color:
         """Shade the color of a triangle according to a directional light."""
@@ -143,7 +156,7 @@ class Camera:
         # clip the color values at 1.0 and return
         max_v = max(cr, cg, cb)
         if max_v > 1.0:
-            return cr/max_v, cg/max_v, cb/max_v
+            return min(cr,1.0), min(cg,1.0), min(cb,1.0)
         return cr, cg, cb
     
     def compute_fog_faded_color(self, color: Color, dz: float) -> Color:
@@ -290,6 +303,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-export", action="store_true",
                         help="Don't export an .eps file of the drawing")
+    parser.add_argument("--fast", action="store_true",
+                        help="Add triangles directly to the Tkinter canvas for speed")
     parser.add_argument("--birds-eye", action="store_true",
                         help="Show a bird's eye view of the entire terrain")
     parser.add_argument("--random-terrain", action="store_true",
@@ -315,13 +330,13 @@ def main():
     
     # set up the lights and camera
     lights = [
-        DirectionalLight(SUNLIGHT_DIRECTION, SUNLIGHT_COLOR),
+        DirectionalLight(SUNLIGHT_DIRECTION, SUNLIGHT_COLOR, dot_clip=0.0),
         DirectionalLight(AMBIENT_LIGHT_DIRECTION, AMBIENT_LIGHT_COLOR, dot_clip=-3.0),
     ]
     if args.birds_eye:
-        camera = Camera((0, 6.0, -2.4), math.pi*0.34, 0, 0, zoom=3.4, fog_factor=0, lights=lights)
+        camera = Camera((0, 6.0, -2.4), math.pi*0.34, 0, 0, zoom=3.4, fog_factor=0, lights=lights, fast_draw=args.fast)
     else:
-        camera = Camera((0, 0.07, -0.001), 0, 0, 0, zoom=1.2, fog_factor=FOG_FACTOR, lights=lights)
+        camera = Camera((0, 0.07, -0.001), 0, 0, 0, zoom=1.2, fog_factor=FOG_FACTOR, lights=lights, fast_draw=args.fast)
     
     # generate and draw the terrain
     print("Generating terrain...")
