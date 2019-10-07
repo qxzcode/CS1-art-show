@@ -290,6 +290,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-export", action="store_true",
                         help="Don't export an .eps file of the drawing")
+    parser.add_argument("--birds-eye", action="store_true",
+                        help="Show a bird's eye view of the entire terrain")
     args = parser.parse_args()
     
     # set up turtle parameters
@@ -312,8 +314,10 @@ def main():
         DirectionalLight(SUNLIGHT_DIRECTION, SUNLIGHT_COLOR),
         DirectionalLight(AMBIENT_LIGHT_DIRECTION, AMBIENT_LIGHT_COLOR, dot_clip=-3.0),
     ]
-    camera = Camera((0, 6.0, -2.4), math.pi*0.34, 0, 0, zoom=3.4, fog_factor=0, lights=lights)
-    camera = Camera((0, 0.07, -0.001), 0, 0, 0, zoom=1.2, fog_factor=FOG_FACTOR, lights=lights)
+    if args.birds_eye:
+        camera = Camera((0, 6.0, -2.4), math.pi*0.34, 0, 0, zoom=3.4, fog_factor=0, lights=lights)
+    else:
+        camera = Camera((0, 0.07, -0.001), 0, 0, 0, zoom=1.2, fog_factor=FOG_FACTOR, lights=lights)
     
     # generate and draw the terrain
     print("Generating terrain...")
