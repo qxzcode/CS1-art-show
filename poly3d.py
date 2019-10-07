@@ -292,6 +292,10 @@ def main():
                         help="Don't export an .eps file of the drawing")
     parser.add_argument("--birds-eye", action="store_true",
                         help="Show a bird's eye view of the entire terrain")
+    parser.add_argument("--random-terrain", action="store_true",
+                        help="Use a random seed for the terrain heightmap")
+    parser.add_argument("--random-color-offset", action="store_true",
+                        help="Use a random seed for the color offset heightmap")
     args = parser.parse_args()
     
     # set up turtle parameters
@@ -321,11 +325,23 @@ def main():
     
     # generate and draw the terrain
     print("Generating terrain...")
-    random.seed(3911294863)
+    if args.random_color_offset:
+        color_offset_seed = random.getrandbits(32)
+        print(f"    Color offset seed = {color_offset_seed}")
+    else:
+        color_offset_seed = 3911294863
+    random.seed(color_offset_seed)
     color_offset = Terrain(recursion_depth=9, noise_depth=4, scale=0.35)
-    random.seed(1462531765)
+    
+    if args.random_terrain:
+        terrain_seed = random.getrandbits(32)
+        print(f"    Terrain seed = {terrain_seed}")
+    else:
+        terrain_seed = 1462531765
+    random.seed(terrain_seed)
     terrain = Terrain(recursion_depth=9, noise_depth=7, scale=0.10,
                       snow_height=0.025, tree_height=-0.015, color_offset_heightmap=color_offset)
+    
     terrain.draw(camera)
     print("Updating the screen...")
     turtle.update()
