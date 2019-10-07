@@ -43,18 +43,17 @@ def multiply_vectors(vec1: Iterable[float], vec2: Iterable[float]) -> Iterable[f
 
 
 # colors
-UPPER_SKY_COLOR = (140/255, 188/255, 237/255) # also used for fog fading
-LOWER_SKY_COLOR = (188/255, 220/255, 243/255)
+UPPER_SKY_COLOR = (109/255, 92/255, 144/255) # also used for fog fading
+LOWER_SKY_COLOR = (228/255, 109/255, 147/255)
 SNOW_COLOR = (1.0, 1.0, 1.0)
 TREE_COLOR = (97/255, 130/255, 101/255)
-ROCK_COLOR = (0.51, 0.5, 0.57)
-SUNLIGHT_COLOR = (1.0, 1.0, 1.0)
-AMBIENT_LIGHT_COLOR = (106/255, 133/255, 169/255) # the color of shadows
+ROCK_COLOR = (49/94, 49/119, 61/143)
+SUNLIGHT_COLOR = (255/255*1.5, 143/255*1.5, 86/255*1.5)
+AMBIENT_LIGHT_COLOR = (87/255*0.2, 72/255*0.2, 93/255*0.2) # the color of shadows
 
 # other parameters
 FOG_FACTOR = 0.9
-#SUNLIGHT_DIRECTION = (3, 6, 1)
-SUNLIGHT_DIRECTION = (-5, 1, 6)
+SUNLIGHT_DIRECTION = (-5, 1, 1.7)
 AMBIENT_LIGHT_DIRECTION = (0, 1, 0)
 
 
@@ -344,7 +343,7 @@ def main():
         color_offset_seed = random.getrandbits(32)
         print(f"    Color offset seed = {color_offset_seed}")
     else:
-        color_offset_seed = 3911294863
+        color_offset_seed = 3038607546
     random.seed(color_offset_seed)
     color_offset = Terrain(recursion_depth=9, noise_depth=4, scale=0.35)
     
@@ -352,7 +351,7 @@ def main():
         terrain_seed = random.getrandbits(32)
         print(f"    Terrain seed = {terrain_seed}")
     else:
-        terrain_seed = 1462531765
+        terrain_seed = 2915496869
     random.seed(terrain_seed)
     terrain = Terrain(recursion_depth=9, noise_depth=7, scale=0.10,
                       snow_height=0.025, tree_height=-0.015, color_offset_heightmap=color_offset)
