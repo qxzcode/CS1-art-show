@@ -43,8 +43,8 @@ def multiply_vectors(vec1: Iterable[float], vec2: Iterable[float]) -> Iterable[f
 
 
 # colors
-UPPER_SKY_COLOR = (109/255, 92/255, 144/255) # also used for fog fading
-LOWER_SKY_COLOR = (228/255, 109/255, 147/255)
+UPPER_SKY_COLOR = (91/255, 130/255, 185/255) # also used for fog fading
+LOWER_SKY_COLOR = (238/255, 207/255, 94/255)
 SNOW_COLOR = (1.0, 1.0, 1.0)
 TREE_COLOR = (97/255, 130/255, 101/255)
 ROCK_COLOR = (49/94, 49/119, 61/143)
@@ -53,7 +53,7 @@ AMBIENT_LIGHT_COLOR = (87/255*0.2, 72/255*0.2, 93/255*0.2) # the color of shadow
 
 # other parameters
 FOG_FACTOR = 0.9
-SUNLIGHT_DIRECTION = (-5, 1, 1.7)
+SUNLIGHT_DIRECTION = (-5, 1, 17)
 AMBIENT_LIGHT_DIRECTION = (0, 1, 0)
 
 
@@ -329,8 +329,8 @@ def main():
     
     # set up the lights and camera
     lights = [
-        DirectionalLight(SUNLIGHT_DIRECTION, SUNLIGHT_COLOR, dot_clip=0.0),
-        DirectionalLight(AMBIENT_LIGHT_DIRECTION, AMBIENT_LIGHT_COLOR, dot_clip=-3.0),
+        #DirectionalLight(SUNLIGHT_DIRECTION, SUNLIGHT_COLOR, dot_clip=0.0),
+        DirectionalLight(AMBIENT_LIGHT_DIRECTION, AMBIENT_LIGHT_COLOR, dot_clip=-0.0),
     ]
     if args.birds_eye:
         camera = Camera((0, 6.0, -2.4), math.pi*0.34, 0, 0, zoom=3.4, fog_factor=0, lights=lights, fast_draw=args.fast)
